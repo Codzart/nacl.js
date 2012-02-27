@@ -6,10 +6,22 @@ curve25519.CRYPTO_SCALARBYTES = 32;
 curve25519.basev = [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
 curve25519.minusp = [ 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128 ];
 
+curve25519.getBinary = function (s) 
+{ //does this overrun s  if s.length is odd?
+        var len = s.length;
+        var data = new Array(len / 2);
+
+        for (var i = 0; i < len; i += 2) {
+            data[i / 2] = toByte((parseInt(s.charAt(i), 16) << 4) + parseInt(s.charAt(i + 1), 16));
+        }
+
+        return data;
+};
+    
 curve25519.crypto_scalarmult_base = function(q, n)
 {
-	var basevp = basev;
-	return crypto_scalarmult(q, n, basevp);
+	var basevp = curve25519.basev;
+	return curve25519.crypto_scalarmult(q, n, basevp);
 };
 
 curve25519.add = function(outv, outvoffset, a, aoffset, b, boffset)
@@ -410,28 +422,53 @@ curve25519.recip = function(outv, outvoffset, z, zoffset)
 };
 
 curve25519.crypto_scalarmult = function(q, n, p)
-{
+{	
+  // reject q if it is a null or not an object, because we cannot return a value properly  
+  if (q === null | typeof q !== "object")
+    throw "curve25519.crypto_scalarmult return object invalid type";
+  // reject if n or p is null 
+  if (n === null | p === null) {
+    throw "curve25519.crypto_scalarmult input argument invalid type";
+  }
+   
+ 	var e    = new Array(32);
 	var work = new Array(96);
-	var e = new Array(32);
-	
-	for (var i = 0; i < 32; ++i)
-		e[i] = n[i];
-	
-	e[0] &= 248;
+ 
+  // accept n as string or byte array of proper size only  
+  if (typeof n === "object") {
+      if (n.length != (curve25519.CRYPTO_SCALARBYTES)) {
+          throw "curve25519.crypto_scalarmult byte array wrong size";
+      } else e = n;      
+  } else if (typeof n === "string") {
+      if (n.length != (curve25519.CRYPTO_SCALARBYTES * 2)) {
+          throw "curve25519.crypto_scalarmult string wrong size";
+      } else e = curve25519.getBinary(n);        
+  } 
+     
+	e[0]  &= 248;
 	e[31] &= 127;
 	e[31] |= 64;
+  
+  // accept p as string or byte array of proper size only
+  if (typeof p === "object") {
+      if (p.length != (curve25519.CRYPTO_SCALARBYTES)) {
+          throw "curve25519.crypto_scalarmult byte array wrong size";
+      } else for (var i = 0; i < 32; ++i) work[i] = p[i] & 0xFF;      
+  } else if (typeof p === "string") {
+      if (p.length != (curve25519.CRYPTO_SCALARBYTES * 2)) {
+          throw "curve25519.crypto_scalarmult string wrong size";
+      } else work = curve25519.getBinary(p);        
+  } 
 	
-	for (var i = 0; i < 32; ++i)
-		work[i] = p[i] & 0xFF;
-	
+  // ready to proceed	
 	this.mainloop(work, e);
-	
 	this.recip(work, 32, work, 32);
 	this.mult(work, 64, work, 0, work, 32);		
 	this.freeze(work, 64);
 	
-	for (var i = 0; i < 32; ++i)
-		q[i] = toByte(work[64 + i]);
-	
+  q.length = curve25519.CRYPTO_SCALARBYTES;
+  for (var i = 0; i < 32; ++i) 
+      q[i] = toByte(work[64 + i]);
+  
 	return 0;
 };

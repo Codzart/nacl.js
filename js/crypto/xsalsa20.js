@@ -13,7 +13,7 @@ xsalsa20.crypto_stream = function(c, clen, n, k)
 {
 	var subkey = new Array(32);
 	
-	hsalsa20.crypto_core(subkey, n, k, sigma);
+	hsalsa20.crypto_core(subkey, n, k, xsalsa20.sigma);
 	return salsa20.crypto_stream(c, clen, n, 16, subkey);
 };
 
@@ -21,6 +21,6 @@ xsalsa20.crypto_stream_xor = function(c, m, mlen, n, k)
 {
 	var subkey = new Array(32);
 	
-	hsalsa20.crypto_core(subkey, n, k, sigma);
+	hsalsa20.crypto_core(subkey, n, k, xsalsa20.sigma);
 	return salsa20.crypto_stream_xor(c, m, parseInt(mlen), n, 16, subkey);
 };

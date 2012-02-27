@@ -44,31 +44,32 @@ curve25519xsalsa20poly1305.crypto_box_open = function(m, c, clen, n, pk, sk)
 	return this.crypto_box_open_afternm(m, c, clen, n, kp);
 };
 
+curve25519xsalsa20poly1305.crypto_box_open_ = function(m, c, n, pk, sk)
+{
+	var cp = c, mp = m, np = n, pkp = pk, skp = sk;
+	return this.crypto_box_open(mp, cp, /*(long)*/c.length, np, pkp, skp);
+};
+
 curve25519xsalsa20poly1305.crypto_box_open_afternm = function(m, c, clen, n, k)
 {
 	return xsalsa20poly1305.crypto_secretbox_open(m, c, clen, n, k);
 };
 
-curve25519xsalsa20poly1305.crypto_box_afternm = function(c, m, n, k)
+curve25519xsalsa20poly1305.crypto_box_afternm_ = function(c, m, n, k)
 {
 	var cp = c, mp = m, np = n, kp = k;
 	return this.crypto_box_afternm(cp, mp, /*(long)*/m.length, np, kp);
 };
 
-curve25519xsalsa20poly1305.crypto_box_open_afternm = function(m, c, n, k)
+curve25519xsalsa20poly1305.crypto_box_open_afternm_ = function(m, c, n, k)
 {
 	var cp = c, mp = m, np = n, kp = k;
 	return this.crypto_box_open_afternm(mp, cp, /*(long)*/c.length, np, kp);
 };
 
-curve25519xsalsa20poly1305.crypto_box = function(c, m, n, pk, sk)
+curve25519xsalsa20poly1305.crypto_box_ = function(c, m, n, pk, sk)
 {
 	var cp = c, mp = m, np = n, pkp = pk, skp = sk;
 	return this.crypto_box(cp, mp, /*(long)*/ m.length, np, pkp, skp);
 };
 
-curve25519xsalsa20poly1305.crypto_box_open = function(m, c, n, pk, sk)
-{
-	var cp = c, mp = m, np = n, pkp = pk, skp = sk;
-	return this.crypto_box_open(mp, cp, /*(long)*/c.length, np, pkp, skp);
-};

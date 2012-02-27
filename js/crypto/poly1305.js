@@ -59,7 +59,7 @@ poly1305.freeze = function(h)
 	for (var j = 0; j < 17; ++j)
 		horig[j] = h[j];
 	
-	this.add(h, minusp);
+	this.add(h, poly1305.minusp);
 	
 	var negative = parseInt(-(h[16] >>> 7));
 	

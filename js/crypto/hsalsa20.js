@@ -113,7 +113,7 @@ hsalsa20.crypto_core = function(outv, inv, k, c)
 	x10 -= this.load_littleendian(c, 8);
 	x15 -= this.load_littleendian(c, 12);
 
-	if (inv !== undefined /* null*/)
+	if (inv != null ) /* null*/        
 	{
 		x6 -= this.load_littleendian(inv, 0);
 		x7 -= this.load_littleendian(inv, 4);
